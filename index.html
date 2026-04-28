@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShareBox — SAE 2.03</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ── Navbar ──────────────────────────────────────────────────────────── -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <div class="nav-brand">📁 <span>ShareBox</span></div>
+    <button class="burger" id="burger">☰</button>
+    <ul class="nav-links">
+      <li><a href="#projet">Projet</a></li>
+      <li><a href="#sqlite">SQLite</a></li>
+      <li><a href="#code-python">Python</a></li>
+      <li><a href="#code-html">HTML</a></li>
+      <li><a href="#dockerfile">Dockerfile</a></li>
+      <li><a href="#docker-cmd">Docker</a></li>
+      <li><a href="#git">Git</a></li>
+      <li><a href="#equipe">Équipe</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ── Hero ────────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <span class="floating-coin c1">📁</span>
+  <span class="floating-coin c2">🐳</span>
+  <span class="floating-coin c3">🔐</span>
+  <span class="floating-coin c4">💾</span>
+  <span class="floating-coin c5">⬆</span>
+  <span class="floating-coin c6">🌿</span>
+
+  <h1>Share<span class="accent">Box</span></h1>
+  <p class="hero-sub">Serveur de partage de fichiers sécurisé — containerisé avec Docker</p>
+  <div class="hero-tags">
+    <span>Python 3</span>
+    <span>Flask</span>
+    <span>SQLite</span>
+    <span>HTML/CSS</span>
+    <span>Docker</span>
+    <span>debian:latest</span>
+    <span>Git</span>
+  </div>
+  <p class="hero-meta">SAE 2.03 — IUT du Havre — BUT Informatique S2</p>
+</section>
+
+<!-- ── Section Projet ──────────────────────────────────────────────────── -->
+<section id="projet" class="section alt">
+  <div class="section-inner">
+    <h2 class="section-title">Le Projet</h2>
+    <p class="section-lead">Serveur web local permettant à des utilisateurs authentifiés de partager des fichiers. L'administrateur gère les comptes depuis une interface dédiée.</p>
+
+    <div class="cards-row">
+      <div class="card">
+        <div class="card-icon">🔐</div>
+        <h3>Authentification</h3>
+        <p>Page de login avec vérification en base SQLite. La session Flask retient l'utilisateur connecté entre les requêtes.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📁</div>
+        <h3>Partage de fichiers</h3>
+        <p>Upload via formulaire HTML (POST). Téléchargement en un clic (GET). Fichiers stockés dans <code>uploads/</code> du conteneur.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚙️</div>
+        <h3>Espace admin</h3>
+        <p>Créer des comptes (user ou admin), voir tous les comptes existants.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🐳</div>
+        <h3>Containerisé</h3>
+        <p><code>docker build</code> installe tout et initialise la BDD. <code>docker run</code> lance le serveur.</p>
+      </div>
+    </div>
+
+    <div class="compare-box">
+      <div class="compare-item">
+        <h3>📦 Image</h3>
+        <p><code>docker build</code> — Debian + Python + Flask + code + BDD initialisée. Statique.</p>
+      </div>
+      <div class="compare-item">
+        <h3>🏃 Conteneur</h3>
+        <p><code>docker run</code> — l'image en cours d'exécution. Isolé, accessible via le port mappé.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section SQLite ───────────────────────────────────────────────────── -->
+<section id="sqlite" class="section">
+  <h2 class="section-title">La Base de Données — SQLite</h2>
+  <p class="section-lead">SQLite stocke toute la BDD dans un seul fichier. Python l'intègre nativement. Pas de serveur séparé à installer.</p>
+
+  <div class="compare-box">
+    <div class="compare-item">
+      <h3>📄 JSON (option rejetée)</h3>
+      <p>Fichier texte simple. Pas de requêtes, pas de types, risque de corruption.</p>
+    </div>
+    <div class="compare-item">
+      <h3>🗄️ SQLite (choix retenu)</h3>
+      <p>Vraie BDD relationnelle. Requêtes SQL. Intégrité garantie. Intégré à Python.</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <p class="two-col-title">La table <code>utilisateurs</code></p>
+      <div class="db-schema">TABLE utilisateurs
+┌──────────────────────────────────────────────┐
+│  id    INTEGER  PRIMARY KEY  AUTOINCREMENT   │
+│  nom   TEXT     NOT NULL     UNIQUE          │
+│  mdp   TEXT     NOT NULL                     │
+│  role  TEXT     NOT NULL                     │
+└──────────────────────────────────────────────┘
+
+Données initiales (créées par init_db.py) :
+id=1  nom="admin"  mdp="admin123"  role="admin"
+id=2  nom="alice"  mdp="alice123"  role="user"</div>
+    </div>
+    <div class="detail-blocks">
+      <div class="detail-block">
+        <strong>INTEGER PRIMARY KEY AUTOINCREMENT</strong>
+        <p>L'<code>id</code> est généré automatiquement à chaque INSERT. On ne le spécifie jamais manuellement.</p>
+      </div>
+      <div class="detail-block">
+        <strong>TEXT NOT NULL UNIQUE</strong>
+        <p><code>nom</code> est obligatoire et unique. Si on insère un doublon, SQLite lève une <code>IntegrityError</code> — capturée en Python pour afficher un message propre.</p>
+      </div>
+      <div class="detail-block">
+        <strong>conn.row_factory = sqlite3.Row</strong>
+        <p>Permet d'accéder aux colonnes par nom (<code>row["nom"]</code>) plutôt que par index (<code>row[0]</code>). Rend le code plus lisible.</p>
+      </div>
+      <div class="detail-block">
+        <strong>conn.commit()</strong>
+        <p>Valide les modifications. Sans <code>commit()</code>, un INSERT ou UPDATE n'est pas sauvegardé de façon permanente.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <p class="two-col-title">Les 4 requêtes SQL du projet</p>
+      <div class="code-block">-- init_db.py : créer la table
+CREATE TABLE IF NOT EXISTS utilisateurs (
+    id   INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom  TEXT NOT NULL UNIQUE,
+    mdp  TEXT NOT NULL,
+    role TEXT NOT NULL
+);
+
+-- database.py : vérifier les identifiants (login)
+SELECT * FROM utilisateurs
+WHERE nom = ? AND mdp = ?;
+
+-- database.py : créer un compte (admin)
+INSERT INTO utilisateurs (nom, mdp, role)
+VALUES (?, ?, ?);
+
+-- database.py : lister tous les comptes
+SELECT id, nom, role FROM utilisateurs;</div>
+    </div>
+    <div class="detail-blocks">
+      <div class="detail-block">
+        <strong>CREATE TABLE IF NOT EXISTS</strong>
+        <p>Crée la table seulement si elle n'existe pas. Permet de relancer le script sans erreur.</p>
+      </div>
+      <div class="detail-block">
+        <strong>? (paramètres liés)</strong>
+        <p>Les <code>?</code> sont des placeholders. SQLite les remplace par les valeurs du tuple passé en 2ème argument. Empêche les injections SQL — on ne concatène jamais des variables dans du SQL.</p>
+      </div>
+      <div class="detail-block">
+        <strong>INSERT OR IGNORE</strong>
+        <p>Dans <code>init_db.py</code>, si le compte <code>admin</code> existe déjà (relancement), SQLite ignore l'INSERT sans erreur.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section Python ───────────────────────────────────────────────────── -->
+<section id="code-python" class="section alt">
+  <div class="section-inner">
+    <h2 class="section-title">Le Code Python — server.py &amp; database.py</h2>
+    <p class="section-lead">Deux fichiers Python avec un rôle chacun. <code>database.py</code> parle à SQLite. <code>server.py</code> gère les routes HTTP.</p>
+
+    <!-- database.py -->
+    <p class="sub-title">database.py</p>
+    <div class="two-col">
+      <div>
+        <p class="two-col-title">Les 4 fonctions</p>
+        <div class="code-block">import sqlite3
+
+DB_PATH = "sharebox.db"
+
+def get_connection():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def verifier_connexion(nom, mdp):
+    conn = get_connection()
+    curseur = conn.cursor()
+    curseur.execute(
+        "SELECT * FROM utilisateurs WHERE nom = ? AND mdp = ?",
+        (nom, mdp)
+    )
+    utilisateur = curseur.fetchone()
+    conn.close()
+    return utilisateur
+
+def creer_compte(nom, mdp, role):
+    conn = get_connection()
+    curseur = conn.cursor()
+    try:
+        curseur.execute(
+            "INSERT INTO utilisateurs (nom, mdp, role) VALUES (?, ?, ?)",
+            (nom, mdp, role)
+        )
+        conn.commit()
+        conn.close()
+        return True
+    except sqlite3.IntegrityError:
+        conn.close()
+        return False
+
+def lister_comptes():
+    conn = get_connection()
+    curseur = conn.cursor()
+    curseur.execute("SELECT id, nom, role FROM utilisateurs")
+    comptes = curseur.fetchall()
+    conn.close()
+    return comptes</div>
+      </div>
+      <div class="detail-blocks">
+        <div class="detail-block">
+          <strong>sqlite3.connect(DB_PATH)</strong>
+          <p>Ouvre une connexion au fichier <code>sharebox.db</code>. Crée le fichier s'il n'existe pas.</p>
+        </div>
+        <div class="detail-block">
+          <strong>curseur.fetchone()</strong>
+          <p>Récupère la 1ère ligne du résultat. Retourne <code>None</code> si rien ne correspond — ce qui permet <code>if utilisateur:</code> dans <code>server.py</code>.</p>
+        </div>
+        <div class="detail-block">
+          <strong>try / except IntegrityError</strong>
+          <p>Si le nom est déjà pris (UNIQUE), SQLite lève cette exception. On la capture pour retourner <code>False</code> au lieu de planter.</p>
+        </div>
+        <div class="detail-block">
+          <strong>conn.close()</strong>
+          <p>Ferme la connexion après usage pour libérer les ressources.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- server.py routes -->
+    <p class="sub-title">server.py — 5 routes</p>
+
+    <!-- Route 1 -->
+    <p class="two-col-title" style="margin-bottom:.6rem">Route 1 — Login <code>GET/POST /</code></p>
+    <div class="two-col">
+      <div class="code-block">@app.route("/", methods=["GET", "POST"])
+def login():
+    erreur = None
+    if request.method == "POST":
+        nom = request.form["nom"]
+        mdp = request.form["mdp"]
+        utilisateur = verifier_connexion(nom, mdp)
+        if utilisateur:
+            session["utilisateur"] = utilisateur["nom"]
+            session["role"]        = utilisateur["role"]
+            return redirect("/fichiers")
+        else:
+            erreur = "Nom ou mot de passe incorrect."
+    return render_template("login.html", erreur=erreur)</div>
+      <div class="detail-blocks">
+        <div class="detail-block">
+          <strong>methods=["GET", "POST"]</strong>
+          <p>GET = afficher le formulaire vide. POST = traiter la soumission. Sans <code>methods</code>, Flask n'accepte que GET.</p>
+        </div>
+        <div class="detail-block">
+          <strong>verifier_connexion(nom, mdp)</strong>
+          <p>Appelle <code>database.py</code> qui fait le SELECT SQL. <code>server.py</code> ne contient aucun SQL.</p>
+        </div>
+        <div class="detail-block">
+          <strong>session["utilisateur"] = ...</strong>
+          <p>Flask stocke ça dans un cookie chiffré. Chaque requête suivante contient ce cookie — c'est ainsi que le serveur sait qui est connecté.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Route 2 -->
+    <p class="two-col-title" style="margin-bottom:.6rem">Route 2 — Fichiers <code>GET /fichiers</code></p>
+    <div class="two-col">
+      <div class="code-block">@app.route("/fichiers")
+def fichiers():
+    if "utilisateur" not in session:
+        return redirect("/")
+    liste = os.listdir(UPLOAD_FOLDER)
+    return render_template("index.html",
+                           fichiers=liste,
+                           utilisateur=session["utilisateur"],
+                           role=session["role"])</div>
+      <div class="detail-blocks">
+        <div class="detail-block">
+          <strong>if "utilisateur" not in session</strong>
+          <p>Protection de route. Pas de session = pas connecté = retour au login.</p>
+        </div>
+        <div class="detail-block">
+          <strong>render_template("index.html", fichiers=liste, ...)</strong>
+          <p>Passe les variables Python au template. <code>fichiers</code> devient <code>{{ fichiers }}</code> en HTML, etc.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Route 3 -->
+    <p class="two-col-title" style="margin-bottom:.6rem">Route 3 — Upload <code>POST /upload</code></p>
+    <div class="two-col">
+      <div class="code-block">@app.route("/upload", methods=["POST"])
+def upload():
+    if "utilisateur" not in session:
+        return redirect("/")
+    fichier = request.files["fichier"]
+    if fichier.filename != "":
+        chemin = os.path.join(UPLOAD_FOLDER, fichier.filename)
+        fichier.save(chemin)
+    return redirect("/fichiers")</div>
+      <div class="detail-blocks">
+        <div class="detail-block">
+          <strong>request.files["fichier"]</strong>
+          <p>Récupère le fichier du formulaire. Différent de <code>request.form</code> (texte). Nécessite <code>enctype="multipart/form-data"</code> sur le <code>&lt;form&gt;</code> HTML.</p>
+        </div>
+        <div class="detail-block">
+          <strong>fichier.save(chemin)</strong>
+          <p>Sauvegarde le fichier sur le disque du conteneur.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Route 4 -->
+    <p class="two-col-title" style="margin-bottom:.6rem">Route 4 — Download <code>GET /download/&lt;nom&gt;</code></p>
+    <div class="two-col">
+      <div class="code-block">@app.route("/download/&lt;nom&gt;")
+def download(nom):
+    if "utilisateur" not in session:
+        return redirect("/")
+    return send_from_directory(UPLOAD_FOLDER, nom, as_attachment=True)</div>
+      <div class="detail-blocks">
+        <div class="detail-block">
+          <strong>&lt;nom&gt; dans l'URL</strong>
+          <p>Paramètre dynamique. <code>/download/rapport.pdf</code> → <code>nom = "rapport.pdf"</code>.</p>
+        </div>
+        <div class="detail-block">
+          <strong>as_attachment=True</strong>
+          <p>Force le téléchargement au lieu d'afficher le fichier dans le navigateur.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Route 5 -->
+    <p class="two-col-title" style="margin-bottom:.6rem">Route 5 — Admin <code>GET/POST /admin</code></p>
+    <div class="two-col">
+      <div class="code-block">@app.route("/admin", methods=["GET", "POST"])
+def admin():
+    if session.get("role") != "admin":
+        return redirect("/")
+    message = None
+    if request.method == "POST":
+        succes = creer_compte(
+            request.form["nom"],
+            request.form["mdp"],
+            request.form["role"]
+        )
+        message = (f"Compte '{request.form['nom']}' créé."
+                   if succes else "Ce nom est déjà pris.")
+    comptes = lister_comptes()
+    return render_template("admin.html", message=message, comptes=comptes)</div>
+      <div class="detail-blocks">
+        <div class="detail-block">
+          <strong>session.get("role") != "admin"</strong>
+          <p>Double protection — <code>get()</code> retourne <code>None</code> si la clé n'existe pas. Si le rôle n'est pas admin, on redirige.</p>
+        </div>
+        <div class="detail-block">
+          <strong>creer_compte(...)</strong>
+          <p>Retourne <code>True</code> ou <code>False</code> — <code>server.py</code> choisit le message selon le résultat.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section HTML ─────────────────────────────────────────────────────── -->
+<section id="code-html" class="section">
+  <h2 class="section-title">Le Code HTML — Templates Jinja2</h2>
+  <p class="section-lead">Flask utilise Jinja2 pour injecter du Python dans le HTML. Les <code>{{ }}</code> affichent des variables. Les <code>{% %}</code> font de la logique.</p>
+
+  <div class="two-col">
+    <div class="code-block">&lt;!-- Variable Python → HTML --&gt;
+&lt;span&gt;👤 {{ utilisateur }}&lt;/span&gt;
+
+&lt;!-- Condition : affiché seulement si erreur n'est pas None --&gt;
+{% if erreur %}
+  &lt;div class="erreur"&gt;{{ erreur }}&lt;/div&gt;
+{% endif %}
+
+&lt;!-- Boucle sur la liste "fichiers" de os.listdir() --&gt;
+{% for f in fichiers %}
+  &lt;div class="fichier-item"&gt;
+    &lt;span&gt;📄 {{ f }}&lt;/span&gt;
+    &lt;a href="/download/{{ f }}"&gt;⬇ Télécharger&lt;/a&gt;
+  &lt;/div&gt;
+{% endfor %}
+
+&lt;!-- Visible seulement si admin --&gt;
+{% if role == "admin" %}
+  &lt;a href="/admin"&gt;⚙ Gérer les comptes&lt;/a&gt;
+{% endif %}
+
+&lt;!-- Boucle sur les comptes retournés par lister_comptes() --&gt;
+{% for compte in comptes %}
+  &lt;tr&gt;
+    &lt;td&gt;{{ compte["id"] }}&lt;/td&gt;
+    &lt;td&gt;{{ compte["nom"] }}&lt;/td&gt;
+    &lt;td&gt;{{ compte["role"] }}&lt;/td&gt;
+  &lt;/tr&gt;
+{% endfor %}</div>
+    <div class="detail-blocks">
+      <div class="detail-block">
+        <strong>{{ variable }}</strong>
+        <p>Jinja2 remplace par la valeur Python envoyée via <code>render_template()</code>. <code>None</code> → rien affiché.</p>
+      </div>
+      <div class="detail-block">
+        <strong>{% if %} / {% endif %}</strong>
+        <p>HTML conditionnel. Généré côté serveur avant envoi au navigateur.</p>
+      </div>
+      <div class="detail-block">
+        <strong>{% for f in fichiers %}</strong>
+        <p>Génère un bloc HTML par élément de la liste.</p>
+      </div>
+      <div class="detail-block">
+        <strong>enctype="multipart/form-data"</strong>
+        <p>Attribut <strong>obligatoire</strong> sur le <code>&lt;form&gt;</code> qui envoie un fichier. Sans lui, <code>request.files</code> est vide côté Flask.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section Dockerfile ───────────────────────────────────────────────── -->
+<section id="dockerfile" class="section alt">
+  <div class="section-inner">
+    <h2 class="section-title">Le Dockerfile — Instruction par instruction</h2>
+    <p class="section-lead">Le Dockerfile est une recette. Docker l'exécute de haut en bas lors du <code>docker build</code>.</p>
+
+    <div class="two-col">
+      <div class="code-block">FROM debian:latest
+
+RUN apt-get update &amp;&amp; apt-get install -y \
+    python3 \
+    python3-pip \
+    &amp;&amp; rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY app/ .
+
+RUN pip3 install --break-system-packages -r requirements.txt
+
+RUN python3 init_db.py
+
+EXPOSE 5000
+
+CMD ["python3", "server.py"]</div>
+      <div>
+        <table class="instruction-table">
+          <thead>
+            <tr><th>Instruction</th><th>Ce qu'elle fait</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>FROM debian:latest</td><td>Image de base Linux Debian vierge</td></tr>
+            <tr><td>RUN apt-get update</td><td>Met à jour la liste des paquets</td></tr>
+            <tr><td>apt-get install python3 python3-pip</td><td>Installe Python et pip</td></tr>
+            <tr><td>rm -rf /var/lib/apt/lists/*</td><td>Supprime les caches — réduit la taille</td></tr>
+            <tr><td>WORKDIR /app</td><td>Crée et définit <code>/app</code> comme dossier de travail</td></tr>
+            <tr><td>COPY app/ .</td><td>Copie tout le code dans <code>/app</code> du conteneur</td></tr>
+            <tr><td>pip3 install -r requirements.txt</td><td>Installe Flask</td></tr>
+            <tr><td>python3 init_db.py</td><td>Crée <code>sharebox.db</code> avec les comptes par défaut</td></tr>
+            <tr><td>EXPOSE 5000</td><td>Documente le port (nécessaire pour <code>-p</code>)</td></tr>
+            <tr><td>CMD ["python3", "server.py"]</td><td>Lance le serveur au démarrage</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section Docker commandes ─────────────────────────────────────────── -->
+<section id="docker-cmd" class="section">
+  <h2 class="section-title">Docker — Build, Run &amp; Commandes</h2>
+  <p class="section-lead">Trois commandes pour déployer le projet sur n'importe quelle machine.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h3>Cloner</h3>
+        <code>git clone git@github.com:USERNAME/sharebox.git &amp;&amp; cd sharebox</code>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h3>Construire</h3>
+        <code>docker build -t sharebox .</code>
+        <p style="margin-top:.3rem">(<code>-t</code> = nom de l'image, <code>.</code> = Dockerfile ici)</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h3>Lancer</h3>
+        <code>docker run -d -p 5000:5000 --name sharebox-app sharebox</code>
+      </div>
+    </div>
+  </div>
+
+  <div class="access-box">
+    <span>💻 Local : <code>http://localhost:5000</code></span>
+    <span>🌐 Réseau local : <code>http://&lt;IP_MACHINE&gt;:5000</code></span>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <p class="two-col-title">Gestion des conteneurs</p>
+      <div class="code-block">docker ps                      # conteneurs actifs
+docker ps -a                   # tous les conteneurs
+docker stop sharebox-app       # arrêter
+docker start sharebox-app      # relancer
+docker rm sharebox-app         # supprimer le conteneur
+docker images                  # lister les images
+docker rmi sharebox            # supprimer l'image</div>
+    </div>
+    <div>
+      <p class="two-col-title">Debug &amp; inspection</p>
+      <div class="code-block"># Voir les logs Flask (très utile pour débugger)
+docker logs sharebox-app
+docker logs -f sharebox-app    # -f = temps réel
+
+# Terminal dans le conteneur
+docker exec -it sharebox-app bash
+
+# Depuis le terminal du conteneur :
+ls /app                        # fichiers copiés par COPY
+ls /app/uploads                # fichiers uploadés
+python3 -c "import sqlite3; \
+  conn=sqlite3.connect('sharebox.db'); \
+  print(conn.execute('SELECT nom,role FROM utilisateurs').fetchall())"
+exit</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section Git ──────────────────────────────────────────────────────── -->
+<section id="git" class="section alt">
+  <div class="section-inner">
+    <h2 class="section-title">Git &amp; GitHub — De zéro au déploiement</h2>
+    <p class="section-lead">Créer le dépôt, configurer SSH, versionner le code, activer GitHub Pages.</p>
+
+    <p class="sub-title">Créer le dépôt</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><h3>Créer un compte GitHub</h3><p>github.com → Sign up → email IUT</p></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><h3>Nouveau dépôt</h3><p>New repository → Nom : <code>sharebox</code> → Public → <strong>sans</strong> README → Create</p></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><h3>Copier l'URL SSH</h3><p>bouton Code → onglet SSH → <code>git@github.com:USERNAME/sharebox.git</code></p></div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><h3>Garder la page ouverte</h3><p>nécessaire pour <code>git remote add</code></p></div>
+      </div>
+    </div>
+
+    <p class="sub-title">Configurer SSH</p>
+    <div class="two-col">
+      <div class="code-block"># 1. Générer les clés SSH (Entrée × 3 pour les valeurs par défaut)
+ssh-keygen -t ed25519 -C "ton.email@etudiant.univ-lehavre.fr"
+
+# 2. Afficher la clé publique à copier sur GitHub
+cat ~/.ssh/id_ed25519.pub
+
+# 3. Tester la connexion
+ssh -T git@github.com
+# Réponse : Hi USERNAME! You've successfully authenticated...</div>
+      <div class="detail-blocks">
+        <div class="detail-block">
+          <strong>Pourquoi SSH ?</strong>
+          <p>Push sans mot de passe à chaque fois. La clé privée reste sur ta machine, la clé publique est sur GitHub.</p>
+        </div>
+        <div class="detail-block">
+          <strong>Ajouter la clé</strong>
+          <p>GitHub → icône profil → Settings → SSH and GPG keys → New SSH key → coller <code>id_ed25519.pub</code> → Save.</p>
+        </div>
+        <div class="detail-block">
+          <strong>Privée vs publique</strong>
+          <p><code>id_ed25519</code> = privée (<strong>jamais partager</strong>). <code>id_ed25519.pub</code> = publique (déposée sur GitHub).</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="sub-title">Init et premier push</p>
+    <div class="code-block" style="margin-bottom:2rem">cd sharebox
+
+git init                                            # initialise Git
+git remote add origin git@github.com:USERNAME/sharebox.git  # lie au GitHub
+git remote -v                                       # vérifie la config
+
+git add .                                           # prépare tous les fichiers
+git status                                          # vérifie ce qui va être commité
+git commit -m "feat: premier commit — ShareBox"    # snapshot
+git push -u origin main                             # envoie sur GitHub</div>
+
+    <p class="sub-title">Workflow quotidien</p>
+    <div class="steps" style="margin-bottom:2rem">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><h3>Vérifier</h3><code>git status</code></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><h3>Préparer</h3><code>git add .</code></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><h3>Commiter</h3><code>git commit -m "description"</code></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-body"><h3>Pousser</h3><code>git push origin main</code></div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-body"><h3>Tirer</h3><code>git pull</code><p>(récupérer les modifications des autres)</p></div></div>
+    </div>
+
+    <p class="sub-title">Activer GitHub Pages</p>
+    <div class="steps" style="margin-bottom:2rem">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><p>Settings du dépôt → section <strong>Pages</strong></p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><p>Source : <strong>Deploy from a branch</strong></p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><p>Branch : <code>main</code>, Folder : <code>/docs</code></p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-body"><p>Save → URL générée : <code>https://USERNAME.github.io/sharebox/</code></p></div></div>
+    </div>
+
+    <p class="sub-title">Commandes essentielles</p>
+    <div class="two-col">
+      <div class="code-block">git init                     # initialiser un dépôt
+git clone git@github...      # copier un dépôt distant
+git status                   # fichiers modifiés
+git add .                    # préparer tous les fichiers
+git add &lt;fichier&gt;            # préparer un fichier précis
+git commit -m "message"      # enregistrer un snapshot
+git log --oneline            # historique condensé</div>
+      <div class="code-block">git branch                   # lister les branches
+git checkout -b ma-feature   # créer et basculer
+git merge ma-feature         # fusionner
+git push origin main         # envoyer sur GitHub
+git pull                     # récupérer les modifs
+git remote -v                # voir les remotes
+git diff                     # différences non commitées</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section Équipe ───────────────────────────────────────────────────── -->
+<section id="equipe" class="section">
+  <h2 class="section-title">L'Équipe</h2>
+  <div class="team-grid">
+    <div class="team-card">
+      <div class="team-avatar" style="background:rgba(124,106,247,.2)">🟣</div>
+      <h3>Loucas</h3>
+      <p>Backend Flask + SQLite + Docker</p>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar" style="background:rgba(52,152,219,.2)">🔵</div>
+      <h3>Membre 2</h3>
+      <p>Rôle à compléter</p>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar" style="background:rgba(46,204,113,.2)">🟢</div>
+      <h3>Membre 3</h3>
+      <p>Rôle à compléter</p>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar" style="background:rgba(241,196,15,.2)">🟡</div>
+      <h3>Membre 4</h3>
+      <p>Rôle à compléter</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ──────────────────────────────────────────────────────────── -->
+<footer>
+  <p>
+    <a href="https://github.com/TON_USERNAME/sharebox" target="_blank">GitHub — sharebox</a>
+    &nbsp;·&nbsp;
+    SAE 2.03 — IUT du Havre — BUT Informatique S2
+  </p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
