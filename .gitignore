@@ -1,0 +1,5 @@
+app/uploads/
+app/sharebox.db
+__pycache__/
+*.pyc
+.env
