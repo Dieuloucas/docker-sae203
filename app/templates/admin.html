@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>ShareBox — Admin</title>
+  <style>
+    :root {
+      --bg: #0d0d14; --bg2: #13131c; --bg3: #1a1a26;
+      --border: #252535; --accent: #7c6af7; --accent2: #a394ff;
+      --text: #e8e8f4; --muted: #6868a0; --green: #2ecc71; --red: #e74c3c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; padding: 2rem 1.5rem; }
+    .page { max-width: 700px; margin: 0 auto; }
+    h1 { font-size: 1.4rem; color: var(--accent2); margin-bottom: 2rem; }
+    h2 { font-size: 1rem; color: var(--muted); margin-bottom: 1rem; }
+    .form-carte { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    label { display: block; font-size: .85rem; color: var(--muted); margin-bottom: .3rem; }
+    input, select { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: .6rem .9rem; color: var(--text); font-size: .9rem; margin-bottom: 1rem; }
+    select option { background: var(--bg3); }
+    button { background: var(--accent); color: white; border: none; border-radius: 8px; padding: .7rem 1.5rem; font-size: .95rem; cursor: pointer; }
+    .msg-ok  { background: rgba(46,204,113,.15); border: 1px solid var(--green); border-radius: 8px; padding: .6rem 1rem; color: var(--green); font-size: .85rem; margin-bottom: 1rem; }
+    .msg-err { background: rgba(231,76,60,.15); border: 1px solid var(--red); border-radius: 8px; padding: .6rem 1rem; color: var(--red); font-size: .85rem; margin-bottom: 1rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    th { text-align: left; padding: .5rem .75rem; background: var(--bg3); color: var(--muted); border-bottom: 1px solid var(--border); }
+    td { padding: .45rem .75rem; border-bottom: 1px solid var(--border); }
+    .badge { background: var(--bg3); border: 1px solid var(--border); border-radius: 999px; padding: .15rem .6rem; font-size: .75rem; color: var(--accent2); }
+    .retour { display: inline-block; margin-top: 1.5rem; color: var(--muted); font-size: .85rem; text-decoration: none; }
+    .retour:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h1>⚙ Administration</h1>
+
+    <div class="form-carte">
+      <h2>Créer un nouveau compte</h2>
+
+      {% if message %}
+        <div class="{{ 'msg-ok' if 'succès' in message else 'msg-err' }}">{{ message }}</div>
+      {% endif %}
+
+      <form method="POST" action="/admin">
+        <label>Nom d'utilisateur</label>
+        <input type="text" name="nom" required>
+        <label>Mot de passe</label>
+        <input type="password" name="mdp" required>
+        <label>Rôle</label>
+        <select name="role">
+          <option value="user">Utilisateur</option>
+          <option value="admin">Administrateur</option>
+        </select>
+        <button type="submit">Créer le compte</button>
+      </form>
+    </div>
+
+    <h2>Comptes existants</h2>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Nom</th><th>Rôle</th></tr>
+      </thead>
+      <tbody>
+        {% for compte in comptes %}
+          <tr>
+            <td>{{ compte["id"] }}</td>
+            <td>{{ compte["nom"] }}</td>
+            <td><span class="badge">{{ compte["role"] }}</span></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <a href="/fichiers" class="retour">← Retour aux fichiers</a>
+  </div>
+</body>
+</html>

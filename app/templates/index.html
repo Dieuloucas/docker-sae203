@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>ShareBox — Fichiers</title>
+  <style>
+    :root {
+      --bg: #0d0d14; --bg2: #13131c; --bg3: #1a1a26;
+      --border: #252535; --accent: #7c6af7; --accent2: #a394ff;
+      --text: #e8e8f4; --muted: #6868a0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; padding: 2rem 1.5rem; }
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      max-width: 700px; margin: 0 auto 2rem;
+    }
+    h1 { font-size: 1.4rem; color: var(--accent2); }
+    .user-info { font-size: .85rem; color: var(--muted); display: flex; gap: 1rem; align-items: center; }
+    .badge { background: var(--bg3); border: 1px solid var(--border); border-radius: 999px; padding: .2rem .7rem; font-size: .75rem; color: var(--accent2); }
+    a.logout { color: var(--muted); font-size: .85rem; text-decoration: none; }
+    a.logout:hover { color: var(--text); }
+    .main { max-width: 700px; margin: 0 auto; }
+    .upload-zone { background: var(--bg2); border: 1px dashed var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .upload-zone h2 { font-size: 1rem; margin-bottom: 1rem; color: var(--muted); }
+    .upload-row { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+    input[type="file"] { color: var(--muted); font-size: .85rem; flex: 1; }
+    button { background: var(--accent); color: white; border: none; border-radius: 8px; padding: .6rem 1.2rem; cursor: pointer; font-size: .9rem; }
+    button:hover { background: var(--accent2); }
+    .fichiers h2 { font-size: 1rem; margin-bottom: 1rem; color: var(--muted); }
+    .fichier-item { display: flex; justify-content: space-between; align-items: center; padding: .75rem 1rem; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; margin-bottom: .5rem; }
+    .btn-dl { background: var(--bg3); color: var(--accent2); border: 1px solid var(--border); border-radius: 6px; padding: .3rem .75rem; font-size: .8rem; text-decoration: none; }
+    .btn-dl:hover { border-color: var(--accent); }
+    .vide { color: var(--muted); font-size: .9rem; }
+    .admin-link { margin-top: 2rem; text-align: center; }
+    .admin-link a { color: var(--accent2); font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📁 ShareBox</h1>
+    <div class="user-info">
+      <span>👤 {{ utilisateur }}</span>
+      <span class="badge">{{ role }}</span>
+      <a href="/logout" class="logout">Déconnexion</a>
+    </div>
+  </header>
+
+  <div class="main">
+    <!-- enctype="multipart/form-data" OBLIGATOIRE pour envoyer des fichiers -->
+    <div class="upload-zone">
+      <h2>Uploader un fichier</h2>
+      <form action="/upload" method="POST" enctype="multipart/form-data">
+        <div class="upload-row">
+          <input type="file" name="fichier">
+          <button type="submit">⬆ Envoyer</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="fichiers">
+      <h2>Fichiers disponibles</h2>
+      {% if fichiers %}
+        {% for f in fichiers %}
+          <div class="fichier-item">
+            <span>📄 {{ f }}</span>
+            <a href="/download/{{ f }}" class="btn-dl">⬇ Télécharger</a>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="vide">Aucun fichier pour l'instant.</p>
+      {% endif %}
+    </div>
+
+    {% if role == "admin" %}
+      <div class="admin-link">
+        <a href="/admin">⚙ Gérer les comptes</a>
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>

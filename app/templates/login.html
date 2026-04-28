@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>ShareBox — Connexion</title>
+  <style>
+    :root {
+      --bg: #0d0d14; --bg2: #13131c; --bg3: #1a1a26;
+      --border: #252535; --accent: #7c6af7; --accent2: #a394ff;
+      --text: #e8e8f4; --muted: #6868a0; --red: #e74c3c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex; align-items: center;
+      justify-content: center; min-height: 100vh;
+    }
+    .carte {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 2.5rem 2rem;
+      width: 100%; max-width: 360px;
+    }
+    h1 { font-size: 1.6rem; text-align: center; color: var(--accent2); margin-bottom: .4rem; }
+    .sous-titre { text-align: center; color: var(--muted); font-size: .85rem; margin-bottom: 2rem; }
+    label { display: block; font-size: .85rem; color: var(--muted); margin-bottom: .3rem; }
+    input {
+      width: 100%; background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 8px; padding: .65rem .9rem; color: var(--text);
+      font-size: .95rem; margin-bottom: 1rem;
+    }
+    input:focus { outline: none; border-color: var(--accent); }
+    button {
+      width: 100%; background: var(--accent); color: white;
+      border: none; border-radius: 8px; padding: .75rem;
+      font-size: 1rem; cursor: pointer;
+    }
+    button:hover { background: var(--accent2); }
+    .erreur {
+      background: rgba(231,76,60,.15); border: 1px solid var(--red);
+      border-radius: 8px; padding: .6rem .9rem; color: var(--red);
+      font-size: .85rem; margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="carte">
+    <h1>📁 ShareBox</h1>
+    <p class="sous-titre">Connectez-vous pour accéder aux fichiers</p>
+
+    {% if erreur %}
+      <div class="erreur">{{ erreur }}</div>
+    {% endif %}
+
+    <form method="POST" action="/">
+      <label for="nom">Nom d'utilisateur</label>
+      <input type="text" id="nom" name="nom" placeholder="admin" required>
+
+      <label for="mdp">Mot de passe</label>
+      <input type="password" id="mdp" name="mdp" placeholder="••••••••" required>
+
+      <button type="submit">Se connecter</button>
+    </form>
+  </div>
+</body>
+</html>
