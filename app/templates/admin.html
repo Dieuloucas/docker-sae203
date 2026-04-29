@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>ShareBox — Admin</title>
+  <title>dockShare — Admin</title>
   <style>
     :root {
       --bg: #0d0d14; --bg2: #13131c; --bg3: #1a1a26;
@@ -67,6 +67,34 @@
             <td><span class="badge">{{ compte["role"] }}</span></td>
           </tr>
         {% endfor %}
+      </tbody>
+    </table>
+
+    <h2 style="margin-top: 2rem;">Journal d'activité</h2>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Utilisateur</th><th>Action</th><th>Fichier</th><th>Date</th></tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+          <tr>
+            <td>{{ log["id"] }}</td>
+            <td>{{ log["utilisateur"] }}</td>
+            <td>
+              <span style="
+                background: {{ 'rgba(46,204,113,.15)' if log['action'] == 'upload' else 'rgba(52,152,219,.15)' }};
+                color: {{ '#2ecc71' if log['action'] == 'upload' else '#3498db' }};
+                border: 1px solid {{ '#2ecc71' if log['action'] == 'upload' else '#3498db' }};
+                border-radius: 999px; padding: .15rem .6rem; font-size: .75rem;
+              ">{{ log["action"] }}</span>
+            </td>
+            <td>{{ log["fichier"] }}</td>
+            <td style="color: var(--muted); font-size: .8rem;">{{ log["date"] }}</td>
+          </tr>
+        {% endfor %}
+        {% if not logs %}
+          <tr><td colspan="5" style="color: var(--muted); padding: 1rem;">Aucune activité pour l'instant.</td></tr>
+        {% endif %}
       </tbody>
     </table>
 

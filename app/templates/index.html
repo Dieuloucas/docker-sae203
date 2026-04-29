@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>ShareBox — Fichiers</title>
+  <title>dockShare — Fichiers</title>
   <style>
     :root {
       --bg: #0d0d14; --bg2: #13131c; --bg3: #1a1a26;
@@ -38,7 +38,7 @@
 </head>
 <body>
   <header>
-    <h1>📁 ShareBox</h1>
+    <h1>📁 dockShare</h1>
     <div class="user-info">
       <span>👤 {{ utilisateur }}</span>
       <span class="badge">{{ role }}</span>
@@ -63,8 +63,11 @@
       {% if fichiers %}
         {% for f in fichiers %}
           <div class="fichier-item">
-            <span>📄 {{ f }}</span>
-            <a href="/download/{{ f }}" class="btn-dl">⬇ Télécharger</a>
+            <div>
+              <span>📄 {{ f.nom }}</span>
+              <span style="color: var(--muted); font-size: .75rem; margin-left: .5rem;">par {{ f.uploader }}</span>
+            </div>
+            <a href="/download/{{ f.nom }}" class="btn-dl">⬇ Télécharger</a>
           </div>
         {% endfor %}
       {% else %}
