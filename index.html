@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ShareBox — SAE 2.03</title>
+  <title>dockShare — SAE 2.03</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,7 +11,7 @@
 <!-- ── Navbar ──────────────────────────────────────────────────────────── -->
 <nav id="navbar">
   <div class="nav-inner">
-    <div class="nav-brand">📁 <span>ShareBox</span></div>
+    <div class="nav-brand">📁 <span>dockShare</span></div>
     <button class="burger" id="burger">☰</button>
     <ul class="nav-links">
       <li><a href="#projet">Projet</a></li>
@@ -35,7 +35,7 @@
   <span class="floating-coin c5">⬆</span>
   <span class="floating-coin c6">🌿</span>
 
-  <h1>Share<span class="accent">Box</span></h1>
+  <h1>dock<span class="accent">Share</span></h1>
   <p class="hero-sub">Serveur de partage de fichiers sécurisé — containerisé avec Docker</p>
   <div class="hero-tags">
     <span>Python 3</span>
@@ -109,7 +109,7 @@
 
   <div class="two-col">
     <div>
-      <p class="two-col-title">La table <code>utilisateurs</code></p>
+      <p class="two-col-title">Les tables de la base de données</p>
       <div class="db-schema">TABLE utilisateurs
 ┌──────────────────────────────────────────────┐
 │  id    INTEGER  PRIMARY KEY  AUTOINCREMENT   │
@@ -120,7 +120,16 @@
 
 Données initiales (créées par init_db.py) :
 id=1  nom="admin"  mdp="admin123"  role="admin"
-id=2  nom="alice"  mdp="alice123"  role="user"</div>
+id=2  nom="alice"  mdp="alice123"  role="user"
+
+TABLE logs
+┌──────────────────────────────────────────────┐
+│  id          INTEGER  PRIMARY KEY            │
+│  utilisateur TEXT     NOT NULL               │
+│  action      TEXT     NOT NULL  (upload/dl)  │
+│  fichier     TEXT     NOT NULL               │
+│  date        TEXT     NOT NULL               │
+└──────────────────────────────────────────────┘</div>
     </div>
     <div class="detail-blocks">
       <div class="detail-block">
@@ -194,7 +203,7 @@ SELECT id, nom, role FROM utilisateurs;</div>
         <p class="two-col-title">Les 4 fonctions</p>
         <div class="code-block">import sqlite3
 
-DB_PATH = "sharebox.db"
+DB_PATH = "dockshare.db"
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
@@ -238,7 +247,7 @@ def lister_comptes():
       <div class="detail-blocks">
         <div class="detail-block">
           <strong>sqlite3.connect(DB_PATH)</strong>
-          <p>Ouvre une connexion au fichier <code>sharebox.db</code>. Crée le fichier s'il n'existe pas.</p>
+          <p>Ouvre une connexion au fichier <code>dockshare.db</code>. Crée le fichier s'il n'existe pas.</p>
         </div>
         <div class="detail-block">
           <strong>curseur.fetchone()</strong>
@@ -485,7 +494,7 @@ CMD ["python3", "server.py"]</div>
             <tr><td>WORKDIR /app</td><td>Crée et définit <code>/app</code> comme dossier de travail</td></tr>
             <tr><td>COPY app/ .</td><td>Copie tout le code dans <code>/app</code> du conteneur</td></tr>
             <tr><td>pip3 install -r requirements.txt</td><td>Installe Flask</td></tr>
-            <tr><td>python3 init_db.py</td><td>Crée <code>sharebox.db</code> avec les comptes par défaut</td></tr>
+            <tr><td>python3 init_db.py</td><td>Crée <code>dockshare.db</code> avec les comptes par défaut</td></tr>
             <tr><td>EXPOSE 5000</td><td>Documente le port (nécessaire pour <code>-p</code>)</td></tr>
             <tr><td>CMD ["python3", "server.py"]</td><td>Lance le serveur au démarrage</td></tr>
           </tbody>
@@ -505,14 +514,14 @@ CMD ["python3", "server.py"]</div>
       <div class="step-num">1</div>
       <div class="step-body">
         <h3>Cloner</h3>
-        <code>git clone git@github.com:USERNAME/sharebox.git &amp;&amp; cd sharebox</code>
+        <code>git clone git@github.com:USERNAME/docker-sae203.git &amp;&amp; cd docker-sae203</code>
       </div>
     </div>
     <div class="step">
       <div class="step-num">2</div>
       <div class="step-body">
         <h3>Construire</h3>
-        <code>docker build -t sharebox .</code>
+        <code>docker build -t dockshare .</code>
         <p style="margin-top:.3rem">(<code>-t</code> = nom de l'image, <code>.</code> = Dockerfile ici)</p>
       </div>
     </div>
@@ -520,7 +529,7 @@ CMD ["python3", "server.py"]</div>
       <div class="step-num">3</div>
       <div class="step-body">
         <h3>Lancer</h3>
-        <code>docker run -d -p 5000:5000 --name sharebox-app sharebox</code>
+        <code>docker run -d -p 5000:5000 --name dockshare-app dockshare</code>
       </div>
     </div>
   </div>
@@ -535,26 +544,26 @@ CMD ["python3", "server.py"]</div>
       <p class="two-col-title">Gestion des conteneurs</p>
       <div class="code-block">docker ps                      # conteneurs actifs
 docker ps -a                   # tous les conteneurs
-docker stop sharebox-app       # arrêter
-docker start sharebox-app      # relancer
-docker rm sharebox-app         # supprimer le conteneur
+docker stop dockshare-app       # arrêter
+docker start dockshare-app      # relancer
+docker rm dockshare-app         # supprimer le conteneur
 docker images                  # lister les images
-docker rmi sharebox            # supprimer l'image</div>
+docker rmi dockshare            # supprimer l'image</div>
     </div>
     <div>
       <p class="two-col-title">Debug &amp; inspection</p>
       <div class="code-block"># Voir les logs Flask (très utile pour débugger)
-docker logs sharebox-app
-docker logs -f sharebox-app    # -f = temps réel
+docker logs dockshare-app
+docker logs -f dockshare-app    # -f = temps réel
 
 # Terminal dans le conteneur
-docker exec -it sharebox-app bash
+docker exec -it dockshare-app bash
 
 # Depuis le terminal du conteneur :
 ls /app                        # fichiers copiés par COPY
 ls /app/uploads                # fichiers uploadés
 python3 -c "import sqlite3; \
-  conn=sqlite3.connect('sharebox.db'); \
+  conn=sqlite3.connect('dockshare.db'); \
   print(conn.execute('SELECT nom,role FROM utilisateurs').fetchall())"
 exit</div>
     </div>
@@ -575,11 +584,11 @@ exit</div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
-        <div class="step-body"><h3>Nouveau dépôt</h3><p>New repository → Nom : <code>sharebox</code> → Public → <strong>sans</strong> README → Create</p></div>
+        <div class="step-body"><h3>Nouveau dépôt</h3><p>New repository → Nom : <code>docker-sae203</code> → Public → <strong>sans</strong> README → Create</p></div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
-        <div class="step-body"><h3>Copier l'URL SSH</h3><p>bouton Code → onglet SSH → <code>git@github.com:USERNAME/sharebox.git</code></p></div>
+        <div class="step-body"><h3>Copier l'URL SSH</h3><p>bouton Code → onglet SSH → <code>git@github.com:USERNAME/docker-sae203.git</code></p></div>
       </div>
       <div class="step">
         <div class="step-num">4</div>
@@ -615,15 +624,15 @@ ssh -T git@github.com
     </div>
 
     <p class="sub-title">Init et premier push</p>
-    <div class="code-block" style="margin-bottom:2rem">cd sharebox
+    <div class="code-block" style="margin-bottom:2rem">cd docker-sae203
 
 git init                                            # initialise Git
-git remote add origin git@github.com:USERNAME/sharebox.git  # lie au GitHub
+git remote add origin git@github.com:USERNAME/docker-sae203.git  # lie au GitHub
 git remote -v                                       # vérifie la config
 
 git add .                                           # prépare tous les fichiers
 git status                                          # vérifie ce qui va être commité
-git commit -m "feat: premier commit — ShareBox"    # snapshot
+git commit -m "feat: premier commit — dockShare"    # snapshot
 git push -u origin main                             # envoie sur GitHub</div>
 
     <p class="sub-title">Workflow quotidien</p>
@@ -640,7 +649,7 @@ git push -u origin main                             # envoie sur GitHub</div>
       <div class="step"><div class="step-num">1</div><div class="step-body"><p>Settings du dépôt → section <strong>Pages</strong></p></div></div>
       <div class="step"><div class="step-num">2</div><div class="step-body"><p>Source : <strong>Deploy from a branch</strong></p></div></div>
       <div class="step"><div class="step-num">3</div><div class="step-body"><p>Branch : <code>main</code>, Folder : <code>/docs</code></p></div></div>
-      <div class="step"><div class="step-num">4</div><div class="step-body"><p>Save → URL générée : <code>https://USERNAME.github.io/sharebox/</code></p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-body"><p>Save → URL générée : <code>https://USERNAME.github.io/docker-sae203/</code></p></div></div>
     </div>
 
     <p class="sub-title">Commandes essentielles</p>
@@ -693,7 +702,7 @@ git diff                     # différences non commitées</div>
 <!-- ── Footer ──────────────────────────────────────────────────────────── -->
 <footer>
   <p>
-    <a href="https://github.com/TON_USERNAME/sharebox" target="_blank">GitHub — sharebox</a>
+    <a href="https://github.com/Dieuloucas/docker-sae203" target="_blank">GitHub — docker-sae203</a>
     &nbsp;·&nbsp;
     SAE 2.03 — IUT du Havre — BUT Informatique S2
   </p>
