@@ -1,6 +1,6 @@
 import sqlite3
 
-conn = sqlite3.connect("sharebox.db")
+conn = sqlite3.connect("dockshare.db")
 curseur = conn.cursor()
 
 # Crée la table si elle n'existe pas déjà
@@ -25,6 +25,16 @@ curseur.execute(
     "INSERT OR IGNORE INTO utilisateurs (nom, mdp, role) VALUES (?, ?, ?)",
     ("alice", "alice123", "user")
 )
+
+curseur.execute("""
+    CREATE TABLE IF NOT EXISTS logs (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        utilisateur TEXT NOT NULL,
+        action      TEXT NOT NULL,
+        fichier     TEXT NOT NULL,
+        date        TEXT NOT NULL
+    )
+""")
 
 conn.commit()  # valide les insertions
 conn.close()

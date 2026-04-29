@@ -1,6 +1,7 @@
 import sqlite3
+from datetime import datetime
 
-DB_PATH = "sharebox.db"
+DB_PATH = "dockshare.db"
 
 def get_connection():
     """Ouvre et retourne une connexion à la base de données."""
@@ -55,3 +56,27 @@ def lister_comptes():
     comptes = curseur.fetchall()  # récupère TOUTES les lignes
     conn.close()
     return comptes
+
+def enregistrer_log(utilisateur, action, fichier):
+    """Enregistre une action (upload ou download) dans la table logs."""
+    conn = get_connection()
+    curseur = conn.cursor()
+    # datetime.now() retourne la date et heure actuelles
+    # strftime formate la date en texte lisible : "2024-04-28 14:35:22"
+    date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    curseur.execute(
+        "INSERT INTO logs (utilisateur, action, fichier, date) VALUES (?, ?, ?, ?)",
+        (utilisateur, action, fichier, date)
+    )
+    conn.commit()
+    conn.close()
+
+def lister_logs():
+    """Retourne tous les logs, du plus récent au plus ancien."""
+    conn = get_connection()
+    curseur = conn.cursor()
+    # ORDER BY id DESC : le plus récent en premier
+    curseur.execute("SELECT * FROM logs ORDER BY id DESC")
+    logs = curseur.fetchall()
+    conn.close()
+    return logs
