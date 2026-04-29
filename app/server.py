@@ -3,13 +3,13 @@ from flask import Flask, request, render_template, send_from_directory, redirect
 import os  # pour créer des dossiers, lister des fichiers
 
 # On importe nos fonctions de base de données (fichier database.py)
-from database import verifier_connexion, creer_compte, lister_comptes
+from database import verifier_connexion, creer_compte, lister_comptes, enregistrer_log, lister_logs
 
 # Création de l'application Flask
 app = Flask(__name__)
 
 # Clé secrète pour chiffrer les sessions (cookies côté serveur)
-app.secret_key = "sharebox_secret_2024"
+app.secret_key = "dockshare_secret_2024"
 
 # Dossier de stockage des fichiers uploadés
 UPLOAD_FOLDER = "uploads"
@@ -42,10 +42,31 @@ def fichiers():
     if "utilisateur" not in session:
         return redirect("/")
 
-    liste = os.listdir(UPLOAD_FOLDER)   # liste tous les fichiers du dossier uploads
+    # Récupère les fichiers présents sur le disque
+    fichiers_disque = os.listdir(UPLOAD_FOLDER)
+
+    # Pour chaque fichier, cherche le dernier log d'upload correspondant
+    import sqlite3 as _sqlite3
+    conn = _sqlite3.connect('dockshare.db')
+    conn.row_factory = _sqlite3.Row
+    curseur = conn.cursor()
+
+    fichiers = []
+    for nom in fichiers_disque:
+        curseur.execute(
+            "SELECT utilisateur FROM logs WHERE fichier = ? AND action = 'upload' ORDER BY id DESC LIMIT 1",
+            (nom,)
+        )
+        row = curseur.fetchone()
+        fichiers.append({
+            "nom": nom,
+            "uploader": row["utilisateur"] if row else "inconnu"
+        })
+    conn.close()
+
     return render_template(
         "index.html",
-        fichiers=liste,
+        fichiers=fichiers,
         utilisateur=session["utilisateur"],
         role=session["role"]
     )
@@ -60,6 +81,7 @@ def upload():
     if fichier.filename != "":                  # vérifie qu'un fichier a été choisi
         chemin = os.path.join(UPLOAD_FOLDER, fichier.filename)
         fichier.save(chemin)                    # sauvegarde sur le disque
+        enregistrer_log(session["utilisateur"], "upload", fichier.filename)
 
     return redirect("/fichiers")
 
@@ -69,6 +91,7 @@ def download(nom):
     if "utilisateur" not in session:   # protection
         return redirect("/")
     # as_attachment=True force le téléchargement (plutôt que l'affichage)
+    enregistrer_log(session["utilisateur"], "download", nom)
     return send_from_directory(UPLOAD_FOLDER, nom, as_attachment=True)
 
 # ── Déconnexion ──────────────────────────────────────────────────────────────
@@ -99,7 +122,8 @@ def admin():
             message = f"Erreur : le nom '{nouveau_nom}' est déjà pris."
 
     comptes = lister_comptes()   # récupère tous les comptes pour les afficher
-    return render_template("admin.html", message=message, comptes=comptes)
+    logs    = lister_logs()      # récupère tous les logs d'activité
+    return render_template("admin.html", message=message, comptes=comptes, logs=logs)
 
 # ── Lancement du serveur ─────────────────────────────────────────────────────
 if __name__ == "__main__":
